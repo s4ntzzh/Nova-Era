@@ -49,7 +49,6 @@
     }
 
     function setupRealtimeMessages() {
-      if (!currentUser) return;
       const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
       onSnapshot(messagesRef, (snapshot) => {
         const loaded = [];
@@ -66,15 +65,13 @@
     }
 
     window.updateMessageInFirebase = async function(id, updatedFields) {
-      if (!currentUser) return;
       const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'messages', id);
       await updateDoc(docRef, updatedFields);
     };
 
     window.deleteMessageFromFirebase = async function(id) {
-      if (!currentUser) return;
-      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'messages', id);
-      await deleteDoc(docRef, id);
+      const docRef = doc(docRef, 'artifacts', appId, 'public', 'data', 'messages', id);
+      await deleteDoc(docRef);
     };
 
     initAuth();
