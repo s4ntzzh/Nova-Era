@@ -33,7 +33,8 @@
 
     let currentUser = null;
 
-    async function initAuth() {
+    async function ensureAuth() {
+      if (currentUser) return currentUser;
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
@@ -45,18 +46,28 @@
       } catch (err) {
         console.error("Auth error:", err);
       }
+      return currentUser;
     }
 
-    initAuth();
+    ensureAuth();
 
     window.sendOuvidoriaToFirebase = async function(formData) {
-      if (!currentUser) await initAuth();
+      await ensureAuth();
       const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-      await addDoc(messagesRef, {
-        ...formData,
+      const cleanData = {
+        type: String(formData.type || 'Sugestão'),
+        author: String(formData.author || 'Anônimo'),
+        grade: String(formData.grade || '-'),
+        classGroup: String(formData.classGroup || '-'),
+        shift: String(formData.shift || '-'),
+        text: String(formData.text || ''),
+        date: String(formData.date || ''),
+        status: String(formData.status || 'Pendente'),
+        response: String(formData.response || ''),
         createdAt: new Date().toISOString(),
         timestamp: Date.now()
-      });
+      };
+      await addDoc(messagesRef, cleanData);
     };
   </script>
 
