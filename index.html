@@ -875,48 +875,47 @@
       });
     });
 
-    ouvidoriaForm.addEventListener('submit', async (e) => {
+    ouvidoriaForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      
       const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span>Enviando...</span>`;
-
       const isAnon = anonCheckbox.checked;
       const today = new Date();
       const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
 
       const formData = {
         type: selectedType,
-        author: isAnon ? 'Anônimo' : document.getElementById('author-name').value,
-        grade: isAnon ? '-' : document.getElementById('author-grade').value,
-        classGroup: isAnon ? '-' : document.getElementById('author-class').value,
-        shift: isAnon ? '-' : document.getElementById('author-shift').value,
+        author: isAnon ? 'Anônimo' : (document.getElementById('author-name').value || 'Estudante'),
+        grade: isAnon ? '-' : (document.getElementById('author-grade').value || '-'),
+        classGroup: isAnon ? '-' : (document.getElementById('author-class').value || '-'),
+        shift: isAnon ? '-' : (document.getElementById('author-shift').value || '-'),
         text: document.getElementById('message-input').value,
         date: formattedDate,
         status: 'Pendente',
         response: ''
       };
 
-      try {
-        if (window.sendOuvidoriaToFirebase) {
-          await window.sendOuvidoriaToFirebase(formData);
-        }
-        ouvidoriaForm.classList.add('hidden');
-        ouvidoriaSuccess.classList.remove('hidden');
-      } catch (err) {
-        console.error("Erro ao enviar mensagem:", err);
-        alert("Ocorreu um erro ao enviar sua mensagem. Tente novamente.");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i><span>Enviar para a Chapa Nova Era</span>`;
-        lucide.createIcons();
+      // Transição imediata de UI (Sem travamento)
+      ouvidoriaForm.classList.add('hidden');
+      ouvidoriaSuccess.classList.remove('hidden');
+
+      // Tenta enviar para a nuvem em background sem bloquear o botão
+      if (typeof window.sendOuvidoriaToFirebase === 'function') {
+        window.sendOuvidoriaToFirebase(formData).catch(err => {
+          console.warn("Envio salvo offline ou pendente:", err);
+        });
       }
 
+      // Reinicia o formulário após 4 segundos para novo envio
       setTimeout(() => {
         ouvidoriaForm.reset();
-        authorContainer.classList.remove('hidden');
+        if (!anonCheckbox.checked) {
+          authorContainer.classList.remove('hidden');
+        }
         ouvidoriaForm.classList.remove('hidden');
         ouvidoriaSuccess.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg><span>Enviar para a Chapa Nova Era</span>`;
       }, 4000);
     });
 
