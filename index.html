@@ -1,309 +1,199 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova Era</title>
-
+  <title>Chapa Nova Era - Conectando o Futuro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'nova-era-app';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-      apiKey: "demo-api-key",
-      authDomain: "demo-app.firebaseapp.com",
-      projectId: "demo-app",
-      storageBucket: "demo-app.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:123456789"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    let currentUser = null;
-
-    async function ensureAuth() {
-      if (currentUser) return currentUser;
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
-          currentUser = userCredential.user;
-        } else {
-          const userCredential = await signInAnonymously(auth);
-          currentUser = userCredential.user;
-        }
-      } catch (err) {
-        console.error("Auth error:", err);
-      }
-      return currentUser;
-    }
-
-    ensureAuth();
-
-    window.sendOuvidoriaToFirebase = async function(formData) {
-      const cleanData = {
-        id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
-        type: String(formData.type || 'Sugestão'),
-        author: String(formData.author || 'Anônimo'),
-        grade: String(formData.grade || '-'),
-        classGroup: String(formData.classGroup || '-'),
-        shift: String(formData.shift || '-'),
-        text: String(formData.text || ''),
-        date: String(formData.date || ''),
-        status: String(formData.status || 'Pendente'),
-        response: String(formData.response || ''),
-        createdAt: new Date().toISOString(),
-        timestamp: Date.now()
-      };
-
-      // 1. Local storage sync
-      try {
-        const stored = JSON.parse(localStorage.getItem('nova_era_local_messages') || '[]');
-        stored.unshift(cleanData);
-        localStorage.setItem('nova_era_local_messages', JSON.stringify(stored));
-      } catch(e) {}
-
-      // 2. BroadcastChannel notification
-      try {
-        const bc = new BroadcastChannel('nova_era_messages_channel');
-        bc.postMessage({ type: 'NEW_MESSAGE', data: cleanData });
-        bc.close();
-      } catch(e) {}
-
-      // 3. Firestore Sync
-      try {
-        await ensureAuth();
-        const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-        await addDoc(messagesRef, cleanData);
-      } catch(err) {
-        console.warn("Nuvem pendente:", err);
-      }
-    };
-  </script>
-
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body {
+      background-color: #05030a;
+      background-image: 
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 45%),
+        radial-gradient(circle at bottom right, rgba(147, 51, 234, 0.35), transparent 45%);
+      background-attachment: fixed;
+      color: #f3f4f6;
+    }
+    .custom-frame {
+      border: 3px solid transparent;
+      background-image: linear-gradient(#0f0a1c, #0f0a1c), 
+                        radial-gradient(circle at top left, #c084fc, #7e22ce, #3b0764);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      box-shadow: 0 0 35px rgba(168, 85, 247, 0.25);
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
+<body class="min-h-screen flex flex-col justify-between font-sans">
 
-  <header class="sticky top-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-purple-900/40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        <a href="#" class="flex items-center space-x-3" onclick="return false;">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-400/40">
-            <i data-lucide="zap" class="w-6 h-6 text-white"></i>
-          </div>
-          <span class="text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400">
-            Nova Era
-          </span>
-        </a>
-
-        <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-300">
-          <a href="#sobre" class="hover:text-cyan-400 transition-colors">Sobre Nós</a>
-          <a href="#propostas" class="hover:text-cyan-400 transition-colors">Propostas</a>
-          <a href="#membros" class="hover:text-cyan-400 transition-colors">Nosso Time</a>
-          <a href="#cronograma" class="hover:text-cyan-400 transition-colors">Agenda</a>
-          <a href="#ouvidoria" class="hover:text-cyan-400 transition-colors">Fala Estudante</a>
-        </nav>
-
-        <div class="hidden md:flex items-center space-x-3">
-          <a href="#ouvidoria" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white shadow-lg shadow-cyan-500/20 transition-all border border-cyan-400/30">
-            <span>Fala Estudante</span>
-            <i data-lucide="message-square" class="w-4 h-4"></i>
-          </a>
-        </div>
+  <!-- Navegação -->
+  <nav class="border-b border-purple-800/40 bg-purple-950/30 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+      <span class="font-extrabold text-xl text-purple-300 tracking-wider">NOVA ERA</span>
+      <div class="flex gap-4 text-sm font-medium text-purple-200">
+        <a href="#propostas" class="hover:text-purple-400 transition">Propostas</a>
+        <a href="#ouvidoria" class="hover:text-purple-400 transition">Fala Estudante</a>
       </div>
     </div>
+  </nav>
+
+  <!-- Banner Inicial (Hero) -->
+  <header class="max-w-4xl mx-auto text-center px-4 pt-12 pb-8">
+    <span class="bg-purple-900/60 border border-purple-500/40 text-purple-300 text-xs px-3.5 py-1.5 rounded-full uppercase font-bold tracking-widest">
+      Eleições Grêmio Estudantil
+    </span>
+    <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-400 to-indigo-300 mt-4 drop-shadow-lg">
+      CHAPA NOVA ERA
+    </h1>
+    <p class="text-purple-200 mt-4 text-lg md:text-xl max-w-2xl mx-auto">
+      Inovação, união e compromisso com o 6º ao 9º ano. A voz dos estudantes no centro das decisões!
+    </p>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden py-24 lg:py-32 bg-gradient-to-b from-slate-950 via-purple-950/30 to-slate-950">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center max-w-3xl">
-      <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-950/60 border border-cyan-400/30 text-cyan-300 text-xs sm:text-sm font-semibold mb-6">
-        <i data-lucide="rocket" class="w-4 h-4 text-cyan-400"></i>
-        <span>Chapa Nova Era • Renovação e Futuro</span>
-      </div>
+  <main class="max-w-4xl mx-auto px-4 space-y-12 mb-12">
 
-      <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight mb-6">
-        Construindo o futuro da nossa escola <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400">hoje!</span>
-      </h1>
+    <!-- Seção de Propostas -->
+    <section id="propostas" class="space-y-6">
+      <h2 class="text-3xl font-bold text-center text-purple-100 flex justify-center items-center gap-2">
+        <i data-lucide="sparkles" class="text-purple-400"></i>
+        Nossas Principais Propostas
+      </h2>
 
-      <p class="text-lg sm:text-xl text-slate-300 mb-10 leading-relaxed font-light">
-        Transformando o Grêmio em uma plataforma ativa, moderna e conectada com cada estudante. Tecnologia, voz ativa, cultura e esporte de verdade.
-      </p>
-
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="#propostas" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-400 text-white shadow-xl shadow-cyan-500/20 flex items-center justify-center space-x-2 border border-cyan-400/30">
-          <span>Conheça Nossas Propostas</span>
-          <i data-lucide="chevron-right" class="w-5 h-5"></i>
-        </a>
-        <a href="#ouvidoria" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold bg-slate-900 text-slate-200 border border-purple-900/50 flex items-center justify-center space-x-2">
-          <i data-lucide="radio" class="w-5 h-5 text-cyan-400"></i>
-          <span>Fala Estudante</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Ouvidoria / Form -->
-  <section id="ouvidoria" class="py-20 bg-slate-950 border-t border-purple-900/20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-slate-900/80 rounded-3xl p-6 sm:p-8 border border-purple-900/30 shadow-2xl">
-        <div class="mb-6 text-center">
-          <span class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-400 text-xs font-semibold mb-2">
-            <i data-lucide="megaphone" class="w-4 h-4"></i>
-            <span>Fala Estudante</span>
-          </span>
-          <h2 class="text-2xl sm:text-3xl font-black text-white">Sua voz faz a diferença!</h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1">Envie sugestões, elogios e críticas diretamente para a equipe.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="custom-frame rounded-xl p-6">
+          <div class="bg-purple-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-purple-300">
+            <i data-lucide="trophy"></i>
+          </div>
+          <h3 class="font-bold text-lg text-purple-100 mb-2">Esportes & Torneios</h3>
+          <p class="text-sm text-purple-300">Campeonatos de futebol, queimada e e-sports organizados para todas as turmas.</p>
         </div>
 
-        <form id="ouvidoria-form" class="space-y-5">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-2">Tipo de Mensagem *</label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" class="type-btn py-2.5 rounded-xl text-xs font-bold border bg-gradient-to-r from-purple-600 to-cyan-500 border-cyan-400 text-white">Sugestão</button>
-              <button type="button" class="type-btn py-2.5 rounded-xl text-xs font-bold border bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-850">Crítica</button>
-              <button type="button" class="type-btn py-2.5 rounded-xl text-xs font-bold border bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-850">Elogio</button>
-              <button type="button" class="type-btn py-2.5 rounded-xl text-xs font-bold border bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-850">Dúvida</button>
-            </div>
+        <div class="custom-frame rounded-xl p-6">
+          <div class="bg-purple-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-purple-300">
+            <i data-lucide="music"></i>
           </div>
+          <h3 class="font-bold text-lg text-purple-100 mb-2">Cultura & Recreação</h3>
+          <p class="text-sm text-purple-300">Intervalos com música, dias temáticos e eventos de integração.</p>
+        </div>
 
-          <div class="flex items-center space-x-3">
-            <input id="anonymous-checkbox" type="checkbox" class="w-4 h-4 accent-cyan-400 rounded" />
-            <label for="anonymous-checkbox" class="text-sm text-slate-300">Enviar anonimamente</label>
+        <div class="custom-frame rounded-xl p-6">
+          <div class="bg-purple-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-purple-300">
+            <i data-lucide="megaphone"></i>
           </div>
-
-          <div id="author-container" class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome *</label>
-              <input id="author-name" type="text" required placeholder="Seu nome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Série *</label>
-                <select id="author-grade" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400">
-                  <option value="" disabled selected>Série...</option>
-                  <option value="6º Ano EF">6º Ano</option>
-                  <option value="7º Ano EF">7º Ano</option>
-                  <option value="8º Ano EF">8º Ano</option>
-                  <option value="9º Ano EF">9º Ano</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Turma *</label>
-                <select id="author-class" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400">
-                  <option value="" disabled selected>Turma...</option>
-                  <option value="Turma A">Turma A</option>
-                  <option value="Turma B">Turma B</option>
-                  <option value="Turma C">Turma C</option>
-                  <option value="Turma D">Turma D</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Período *</label>
-                <select id="author-shift" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400">
-                  <option value="" disabled selected>Período...</option>
-                  <option value="Manhã">Manhã</option>
-                  <option value="Tarde">Tarde</option>
-                  <option value="Noite">Noite</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Sua Mensagem *</label>
-            <textarea id="message-input" rows="4" required placeholder="O que podemos melhorar na escola?" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 resize-none"></textarea>
-          </div>
-
-          <button type="submit" id="submit-btn" class="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white shadow-xl flex items-center justify-center space-x-2 border border-cyan-400/30">
-            <i data-lucide="send" class="w-5 h-5"></i>
-            <span>Enviar Mensagem</span>
-          </button>
-        </form>
-
-        <div id="ouvidoria-success" class="hidden mt-4 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm font-medium text-center">
-          ✓ Mensagem enviada com sucesso! A Nova Era agradece.
+          <h3 class="font-bold text-lg text-purple-100 mb-2">Voz Ativa</h3>
+          <p class="text-sm text-purple-300">Ouvidoria permanente para levar as opiniões dos alunos direto à direção.</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- Seção Fala Estudante (Ouvidoria) -->
+    <section id="ouvidoria" class="custom-frame rounded-2xl p-6 md:p-10">
+      <h2 class="text-2xl font-bold mb-2 text-purple-100 flex items-center gap-2">
+        <i data-lucide="message-square-plus" class="text-purple-400"></i>
+        Fala Estudante!
+      </h2>
+      <p class="text-sm text-purple-300 mb-6">Envie sua ideia, dúvida ou crítica para a equipe da Chapa Nova Era:</p>
+
+      <form id="ouvidoriaForm" class="space-y-5">
+        
+        <div>
+          <label class="block text-sm font-medium text-purple-200 mb-1">Tipo de Mensagem</label>
+          <select id="tipo" required class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-400 outline-none">
+            <option value="Sugestão">💡 Sugestão</option>
+            <option value="Crítica">⚠️ Crítica / Reclamação</option>
+            <option value="Elogio">⭐ Elogio</option>
+            <option value="Dúvida">❓ Dúvida</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-purple-200 mb-1">Nome (Opcional)</label>
+            <input type="text" id="nome" placeholder="Anônimo" class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-purple-200 mb-1">Ano / Série</label>
+            <select id="ano" required class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-400 outline-none">
+              <option value="6º">6º Ano</option>
+              <option value="7º">7º Ano</option>
+              <option value="8º">8º Ano</option>
+              <option value="9º">9º Ano</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-purple-200 mb-1">Turma</label>
+            <select id="turma" required class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-400 outline-none">
+              <option value="A">Turma A</option>
+              <option value="B">Turma B</option>
+              <option value="C">Turma C</option>
+              <option value="D">Turma D</option>
+              <option value="E">Turma E</option>
+              <option value="F">Turma F</option>
+              <option value="G">Turma G</option>
+              <option value="H">Turma H</option>
+              <option value="I">Turma I</option>
+              <option value="J">Turma J</option>
+              <option value="K">Turma K</option>
+              <option value="L">Turma L</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-purple-200 mb-1">Sua Mensagem</label>
+          <textarea id="mensagem" rows="4" required placeholder="Escreva aqui o que você gostaria de ver na nossa escola..." class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-400 outline-none resize-none"></textarea>
+        </div>
+
+        <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 px-6 rounded-lg transition duration-200 shadow-lg shadow-purple-900/50 flex justify-center items-center gap-2">
+          <i data-lucide="send"></i>
+          Enviar Mensagem
+        </button>
+
+      </form>
+
+      <div id="sucessoMsg" class="hidden mt-4 p-4 bg-purple-900/80 border border-purple-400 text-purple-100 rounded-lg text-center font-medium">
+        ✨ Mensagem enviada com sucesso! A Chapa Nova Era agradece a sua participação.
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-sm text-purple-400/70 py-6 border-t border-purple-900/40">
+    © 2026 Chapa Nova Era • Juntos por uma escola melhor!
+  </footer>
 
   <script>
-    const anonCheckbox = document.getElementById('anonymous-checkbox');
-    const authorContainer = document.getElementById('author-container');
-    const form = document.getElementById('ouvidoria-form');
-    const success = document.getElementById('ouvidoria-success');
-    const typeButtons = document.querySelectorAll('.type-btn');
-    let selectedType = 'Sugestão';
+    lucide.createIcons();
 
-    typeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        typeButtons.forEach(b => b.className = "type-btn py-2.5 rounded-xl text-xs font-bold border bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-850");
-        btn.className = "type-btn py-2.5 rounded-xl text-xs font-bold border bg-gradient-to-r from-purple-600 to-cyan-500 border-cyan-400 text-white";
-        selectedType = btn.innerText;
-      });
-    });
+    const channel = new BroadcastChannel('nova_era_ouvidoria');
 
-    anonCheckbox.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        authorContainer.classList.add('hidden');
-        document.querySelectorAll('#author-container [required]').forEach(el => el.removeAttribute('required'));
-      } else {
-        authorContainer.classList.remove('hidden');
-        document.querySelectorAll('#author-container select, #author-name').forEach(el => el.setAttribute('required', 'true'));
-      }
-    });
-
-    form.addEventListener('submit', (e) => {
+    document.getElementById('ouvidoriaForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const isAnon = anonCheckbox.checked;
-      const today = new Date();
-      const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
 
-      const formData = {
-        type: selectedType,
-        author: isAnon ? 'Anônimo' : (document.getElementById('author-name').value || 'Estudante'),
-        grade: isAnon ? '-' : (document.getElementById('author-grade').value || '-'),
-        classGroup: isAnon ? '-' : (document.getElementById('author-class').value || '-'),
-        shift: isAnon ? '-' : (document.getElementById('author-shift').value || '-'),
-        text: document.getElementById('message-input').value,
-        date: formattedDate
+      const dados = {
+        id: Date.now(),
+        tipo: document.getElementById('tipo').value,
+        nome: document.getElementById('nome').value || 'Anônimo',
+        ano: document.getElementById('ano').value,
+        turma: document.getElementById('turma').value,
+        mensagem: document.getElementById('mensagem').value,
+        data: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       };
 
-      form.classList.add('hidden');
-      success.classList.remove('hidden');
+      const msgsAntigas = JSON.parse(localStorage.getItem('mensagens_ouvidoria') || '[]');
+      msgsAntigas.unshift(dados);
+      localStorage.setItem('mensagens_ouvidoria', JSON.stringify(msgsAntigas));
 
-      if (typeof window.sendOuvidoriaToFirebase === 'function') {
-        window.sendOuvidoriaToFirebase(formData);
-      }
+      channel.postMessage(dados);
+
+      document.getElementById('ouvidoriaForm').reset();
+      const msgBox = document.getElementById('sucessoMsg');
+      msgBox.classList.remove('hidden');
 
       setTimeout(() => {
-        form.reset();
-        if (!anonCheckbox.checked) authorContainer.classList.remove('hidden');
-        form.classList.remove('hidden');
-        success.classList.add('hidden');
+        msgBox.classList.add('hidden');
       }, 4000);
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
     });
   </script>
 </body>
